@@ -1,0 +1,108 @@
+# ============================================================
+# Angular / Node.js (Frontend)
+# ============================================================
+
+# Compiled output
+apps/frontend/dist/
+apps/frontend/tmp/
+apps/frontend/out-tsc/
+apps/frontend/bazel-out/
+
+# Dependencies
+apps/frontend/node_modules/
+
+# Angular cache
+apps/frontend/.angular/
+
+# Coverage & test artifacts
+apps/frontend/coverage/
+apps/frontend/testem.log
+apps/frontend/__screenshots__/
+
+# Misc
+npm-debug.log
+yarn-error.log
+.sass-cache/
+/connect.lock
+/libpeerconnection.log
+/typings
+
+# ============================================================
+# Python / FastAPI (Backend)
+# ============================================================
+
+# Virtual environments
+apps/backend/.venv/
+apps/backend/venv/
+apps/backend/env/
+.venv/
+venv/
+env/
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Coverage
+.coverage
+htmlcov/
+
+# ============================================================
+# Environment & Secrets
+# ============================================================
+
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.json
+
+# ============================================================
+# IDEs & Editors
+# ============================================================
+
+# VS Code (keep shared settings, ignore personal)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# JetBrains
+.idea/
+*.iml
+
+# Eclipse
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# ============================================================
+# OS
+# ============================================================
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ============================================================
+# Docker
+# ============================================================
+
+*.log
