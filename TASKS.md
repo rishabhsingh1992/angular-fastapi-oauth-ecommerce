@@ -5,93 +5,91 @@
 ## Backend
 
 ### Project Setup
-- [ ] Create `apps/backend/main.py` with FastAPI app instance
-- [ ] Add Pydantic `Settings` class for environment config
-- [ ] Configure CORS middleware for Angular dev origin (`localhost:4200`)
-- [ ] Define base `Model` class and database session dependency
+- [x] Create `apps/backend/main.py` with FastAPI app instance
+- [x] Add Pydantic `Settings` class for environment config
+- [x] Configure CORS middleware for Angular dev origin (`localhost:4200`)
+- [x] `app/core/config.py` — Settings with MongoDB URI, JWT fields, Google OAuth fields
+- [x] `app/core/security.py` — JWT create/decode helpers
+- [x] `app/core/dependencies.py` — `get_current_user` / `get_current_admin` FastAPI deps
+- [x] `app/db/mongo.py` — Motor client, `connect_db` / `close_db` lifespan hooks, `get_db` dep
+- [x] `app/main.py` — new app factory wiring up all routers + MongoDB lifespan
 
 ### Database
-
+- [x] `app/models/user.py` — `UserDocument` (Mongo document)
+- [x] `app/models/cart.py` — `CartDocument`, `CartItemDocument`
+- [x] `app/models/order.py` — `OrderDocument`, `OrderLineDocument`, `OrderStatus`
+- [ ] Add MongoDB indexes (email unique, orders.user_id, orders.created_at)
 
 ### Authentication (OAuth)
-- [ ] Implement Google OAuth authorization URL endpoint
-- [ ] Implement OAuth callback endpoint
-- [ ] Issue JWT access + refresh tokens on successful login
-- [ ] Create `GET /auth/me` endpoint returning current user
-- [ ] Add `get_current_user` FastAPI dependency for protected routes
-- [ ] Implement token refresh endpoint
+- [x] `app/routes/auth.py` — `GET /auth/google` redirect, `GET /auth/callback`, `POST /auth/refresh`, `GET /auth/me`
+- [x] `app/services/auth_service.py` — `build_google_auth_url`, `exchange_code_for_user`
+- [ ] Move tokens to HttpOnly cookies (currently URL fragment — not prod-safe)
+- [ ] Implement token refresh on 401 in Angular interceptor
 
 ### Users
-- [ ] Define `User` model (id, email, name, avatar_url, provider, created_at)
-- [ ] `GET /users/me` — current user profile
-- [ ] `PATCH /users/me` — update display name / avatar
+- [x] `app/schemas/user.py` — `UserResponse`, `UserUpdateRequest`
+- [x] `app/services/user_service.py` — `get_user_by_id`, `update_user`
+- [x] `app/routes/users.py` — `GET /users/me`, `PATCH /users/me`
 
 ### Products
-- [ ] Define `Product` model (id, name, description, price, stock, images, category)
-- [ ] `GET /products` — paginated list with search and category filter
-- [ ] `GET /products/{id}` — product detail
-- [ ] `POST /products` — create product (admin only)
-- [ ] `PATCH /products/{id}` — update product (admin only)
-- [ ] `DELETE /products/{id}` — delete product (admin only)
+- [x] `app/schemas/product.py` — `ProductResponse`, `ProductListResponse`, `ProductListParams`
+- [x] `app/services/product_service.py` — Fake Store API proxy with search + category filter + pagination
+- [x] `app/routes/products.py` — `GET /products`, `GET /products/categories`, `GET /products/{id}`
 
 ### Cart
-- [ ] Define `Cart` and `CartItem` models
-- [ ] `GET /cart` — get current user's cart
-- [ ] `POST /cart/items` — add item
-- [ ] `PATCH /cart/items/{id}` — update quantity
-- [ ] `DELETE /cart/items/{id}` — remove item
-- [ ] `DELETE /cart` — clear cart
+- [x] `app/schemas/cart.py` — `CartResponse`, `AddCartItemRequest`, `UpdateCartItemRequest`
+- [x] `app/services/cart_service.py` — `get_cart`, `add_item`, `update_item`, `remove_item`, `clear_cart`
+- [x] `app/routes/cart.py` — `GET /cart`, `POST /cart/items`, `PATCH /cart/items/{id}`, `DELETE /cart/items/{id}`, `DELETE /cart`
 
 ### Orders
-- [ ] Define `Order` and `OrderItem` models with status enum
-- [ ] `POST /orders` — create order from current cart
-- [ ] `GET /orders` — list user's orders
-- [ ] `GET /orders/{id}` — order detail
-- [ ] `PATCH /orders/{id}/status` — update status (admin only)
+- [x] `app/schemas/order.py` — `OrderResponse`, `CreateOrderRequest`, `UpdateOrderStatusRequest`
+- [x] `app/services/order_service.py` — `create_order` (from cart), `list_orders`, `get_order`, `update_order_status`
+- [x] `app/routes/orders.py` — `POST /orders`, `GET /orders`, `GET /orders/{id}`, `PATCH /orders/{id}/status`
 
 ---
 
 ## Frontend
 
 ### Project Setup
-- [ ] Configure `environment.ts` / `environment.prod.ts` with API base URL
-- [ ] Create `ApiService` with typed `HttpClient` wrapper
+- [x] Configure `environment.ts` / `environment.prod.ts` with API base URL
+- [x] Create `ApiService` with typed `HttpClient` wrapper
+- [x] Define shared TypeScript interfaces (`User`, `Product`, `Cart`, `Order`) in `api/api.types.ts`
+- [x] Extended product model in `models/product.model.ts` (Fake Store shape + cart/order types)
+- [x] Mock data in `mock/mock-data.ts` (10 products, 2 orders, category list)
+- [x] Set up lazy-loaded feature routes in `app.routes.ts`
 - [ ] Set up global error interceptor
 - [ ] Set up auth interceptor to attach JWT to requests
-- [ ] Define shared TypeScript interfaces (`User`, `Product`, `Cart`, `Order`)
-- [ ] Set up lazy-loaded feature routes in `app.routes.ts`
 
 ### Authentication
-- [ ] Create `AuthService` (login, logout, refresh token, `currentUser` signal)
-- [ ] `AuthGuard` for protected routes
-- [ ] Login page with OAuth provider buttons
-- [ ] OAuth callback handler route
-- [ ] User avatar / menu in navbar showing logged-in state
+- [x] `services/auth.service.ts` — `loginWithGoogle`, `logout`, `currentUser` signal, `isLoggedIn` computed
+- [ ] `AuthGuard` for protected routes (orders, checkout)
+- [x] Login page (`features/login/login.ts`) with Google OAuth button
+- [ ] OAuth callback handler route (`/auth/callback`)
+- [x] User avatar / menu in Navbar showing logged-in state
 
 ### Layout & Navigation
-- [ ] `NavbarComponent` with logo, search bar, cart icon, user menu
+- [x] `NavbarComponent` — logo, cart icon with badge, user menu (sign in / avatar + logout)
 - [ ] `FooterComponent`
-- [ ] Responsive shell layout with router outlet
+- [x] App shell with `<app-navbar>` + `<router-outlet>`
 
 ### Product Catalog
-- [ ] `ProductListComponent` — grid with pagination, search, category filter
-- [ ] `ProductCardComponent` — image, name, price, "Add to Cart" button
-- [ ] `ProductDetailComponent` — full product page with image gallery
+- [x] `HomeComponent` (`features/home`) — grid with search + category filter using mock data
+- [x] `ProductCardComponent` (`shared/product-card`) — image, category, title, rating, price, Add to Cart
+- [x] `ProductDetailComponent` (`features/product-detail`) — full product page, add to cart with confirmation
 
 ### Shopping Cart
-- [ ] `CartService` with cart state as signal
-- [ ] `CartDrawerComponent` — slide-in panel showing cart items
-- [ ] `CartItemComponent` — quantity stepper, remove button
-- [ ] Cart total and "Proceed to Checkout" CTA
+- [x] `CartService` — signal-based items, `itemCount`, `total`, `addItem`, `removeItem`, `updateQuantity`, `clear`
+- [x] `CartComponent` (`features/cart`) — item list with qty stepper + remove, order summary, checkout CTA
+- [ ] Slide-in `CartDrawerComponent` (optional enhancement)
 
 ### Checkout
-- [ ] `CheckoutComponent` — order summary + shipping form
+- [x] `CheckoutComponent` — reactive shipping form + order summary + async `placeOrder()`
+- [x] Order confirmation state (inline success message with redirect to /orders)
 - [ ] Payment form integration
-- [ ] Order confirmation page
 
 ### Orders
-- [ ] `OrderHistoryComponent` — paginated list of past orders
-- [ ] `OrderDetailComponent` — line items, status, total
+- [x] `OrdersComponent` (`features/orders`) — collapsible order list with status badges and line items
+- [ ] Dedicated `OrderDetailComponent` route (currently inline in orders list)
 
 ### Admin
 - [ ] Admin route group with `AdminGuard`
