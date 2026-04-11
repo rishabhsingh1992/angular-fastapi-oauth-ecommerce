@@ -26,6 +26,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/login/login').then(m => m.LoginComponent)
   },
   {
+    path: 'auth/callback',
+    loadComponent: () => import('./features/login/auth-callback').then(m => m.AuthCallbackComponent)
+  },
+  {
     path: '**',
     redirectTo: ''
   }
