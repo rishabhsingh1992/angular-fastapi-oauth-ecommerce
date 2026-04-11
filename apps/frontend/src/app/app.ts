@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
+import { AuthService } from './services/auth.service';
 import { NavbarComponent } from './shared/navbar/navbar';
 
 @Component({
@@ -17,4 +18,10 @@ import { NavbarComponent } from './shared/navbar/navbar';
     main { min-height: calc(100vh - 64px); }
   `]
 })
-export class App {}
+export class App {
+  private readonly auth = inject(AuthService);
+
+  constructor() {
+    void this.auth.refreshCurrentUser();
+  }
+}

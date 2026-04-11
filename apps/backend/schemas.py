@@ -5,6 +5,28 @@ class User(BaseModel):
     id: int
     email: str
     full_name: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    phone_number: str | None = None
+
+
+class AuthLoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class AuthRegisterRequest(BaseModel):
+    email: str
+    password: str
+    full_name: str | None = None
+    first_name: str
+    last_name: str
+    phone_number: str
+
+
+class AuthTokenResponse(BaseModel):
+    token: str
+    user: User
 
 
 class Product(BaseModel):
