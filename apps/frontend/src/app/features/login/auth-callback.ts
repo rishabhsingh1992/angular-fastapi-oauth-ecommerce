@@ -11,7 +11,7 @@ import { AuthService } from '../../services/auth.service';
       <p>Completing sign in...</p>
     </div>
   `,
-  styles: [`.auth-callback { min-height: calc(100vh - 64px); display: grid; place-items: center; color: #4b5563; }`]
+  styles: [`.auth-callback { min-height: calc(100vh - 64px); display: grid; place-items: center; color: var(--text-muted); }`]
 })
 export class AuthCallbackComponent {
   private readonly auth = inject(AuthService);
