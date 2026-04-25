@@ -1,4 +1,4 @@
-import { Order, Product } from '../models/product.model';
+import { Brand, Order, Product } from '../models/product.model';
 
 export const MOCK_PRODUCTS: Product[] = [
   {
@@ -91,6 +91,21 @@ export const MOCK_PRODUCTS: Product[] = [
     image: "https://fakestoreapi.com/img/71z3kpMAYsL._AC_UY879_.jpg",
     rating: { rate: 4.7, count: 130 }
   }
+];
+
+export const MOCK_BRANDS: Brand[] = [
+  { id: 1, name: 'Nike', category: "men's clothing" },
+  { id: 2, name: 'Adidas', category: "men's clothing" },
+  { id: 3, name: 'Apple', category: 'electronics' },
+  { id: 4, name: 'Samsung', category: 'electronics' },
+  { id: 5, name: 'Sony', category: 'electronics' },
+  { id: 6, name: 'Zara', category: "women's clothing" },
+  { id: 7, name: 'H&M', category: "women's clothing" },
+  { id: 8, name: 'Gucci', category: 'jewelery' },
+  { id: 9, name: 'Puma', category: "men's clothing" },
+  { id: 10, name: "Levi's", category: "men's clothing" },
+  { id: 11, name: 'LG', category: 'electronics' },
+  { id: 12, name: 'Under Armour', category: "men's clothing" },
 ];
 
 export const MOCK_CATEGORIES: string[] = [

@@ -45,6 +45,12 @@ export interface Order {
   createdAt: string;
 }
 
+export interface Brand {
+  id: number;
+  name: string;
+  category: string;
+}
+
 export interface AuthUser {
   id: string;
   email: string;
