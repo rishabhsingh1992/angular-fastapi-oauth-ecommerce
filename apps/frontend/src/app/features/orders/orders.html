@@ -1,0 +1,60 @@
+<div class="orders">
+  <h1 class="orders__title">Order History</h1>
+
+  @if (orders().length === 0) {
+    <div class="orders__empty">
+      <p>You haven't placed any orders yet.</p>
+      <a routerLink="/" class="btn btn--primary">Start Shopping</a>
+    </div>
+  } @else {
+    <div class="orders__list">
+      @for (order of orders(); track order.id) {
+        <div class="order-card" [class.order-card--expanded]="isExpanded(order.id)">
+          <div
+            class="order-card__header"
+            role="button"
+            tabindex="0"
+            [attr.aria-expanded]="isExpanded(order.id)"
+            (click)="toggle(order.id)"
+            (keydown)="onHeaderKeydown($event, order.id)"
+          >
+            <div class="order-card__meta">
+              <span class="order-card__id">{{ order.id }}</span>
+              <span class="order-card__date">{{ formatDate(order.createdAt) }}</span>
+            </div>
+            <div class="order-card__right">
+              <span class="order-card__status" [class]="'status--' + order.status">
+                {{ order.status }}
+              </span>
+              <span class="order-card__total">${{ order.total.toFixed(2) }}</span>
+              <span class="order-card__chevron">{{ isExpanded(order.id) ? '▲' : '▼' }}</span>
+            </div>
+          </div>
+
+          @if (isExpanded(order.id)) {
+            <div class="order-card__body">
+              <div class="order-card__shipping">
+                <strong>Ship to:</strong> {{ order.shipping.fullName }}, {{ order.shipping.address }},
+                {{ order.shipping.city }}, {{ order.shipping.postalCode }}, {{ order.shipping.country }}
+              </div>
+              <ul class="order-card__lines">
+                @for (line of order.lines; track line.productId) {
+                  <li class="order-line">
+                    <img [src]="line.image" [alt]="line.title" class="order-line__img" />
+                    <span class="order-line__title">{{ line.title }}</span>
+                    <span class="order-line__qty">x {{ line.quantity }}</span>
+                    <span class="order-line__price">${{ (line.price * line.quantity).toFixed(2) }}</span>
+                  </li>
+                }
+              </ul>
+              <div class="order-card__total-row">
+                <span>Order Total</span>
+                <strong>${{ order.total.toFixed(2) }}</strong>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

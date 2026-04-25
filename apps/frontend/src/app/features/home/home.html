@@ -1,0 +1,187 @@
+<div class="home">
+  <section class="home__hero" aria-label="Store highlights">
+    <div class="home__hero-copy">
+      <span class="home__eyebrow">New season picks</span>
+      <h1 class="home__hero-title">Curated essentials for everyday shopping.</h1>
+      <p class="home__hero-text">
+        Discover top-rated products, browse by category, and build your cart faster with smarter
+        filters.
+      </p>
+
+      <div class="home__hero-actions">
+        <button type="button" class="home__hero-btn home__hero-btn--primary" (click)="selectedSort.set('rating')">
+          Shop top rated
+        </button>
+        <button type="button" class="home__hero-btn home__hero-btn--secondary" (click)="onSelectCategory('electronics')">
+          Explore electronics
+        </button>
+      </div>
+
+      <div class="home__stats" aria-label="Store statistics">
+        <div class="home__stat-card">
+          <strong>{{ filteredProducts().length }}</strong>
+          <span>Live results</span>
+        </div>
+        <div class="home__stat-card">
+          <strong>{{ brands.length }}</strong>
+          <span>Featured brands</span>
+        </div>
+        <div class="home__stat-card">
+          <strong>{{ averageRating.toFixed(1) }}</strong>
+          <span>Average rating</span>
+        </div>
+      </div>
+    </div>
+
+    @if (featuredProduct; as product) {
+      <aside class="home__hero-spotlight" aria-label="Featured product spotlight">
+        <p class="home__spotlight-label">Editor pick</p>
+        <img [src]="product.image" [alt]="product.title" class="home__spotlight-image" />
+        <div class="home__spotlight-content">
+          <span class="home__spotlight-category">{{ product.category }}</span>
+          <h2 class="home__spotlight-title">{{ product.title }}</h2>
+          <p class="home__spotlight-price">${{ product.price.toFixed(2) }}</p>
+          <button type="button" class="home__hero-btn home__hero-btn--primary" (click)="onAddToCart(product)">
+            Add featured item
+          </button>
+        </div>
+      </aside>
+    }
+  </section>
+
+  <section class="home__categories" aria-label="Browse by category">
+    <button
+      type="button"
+      class="home__category-chip"
+      [class.home__category-chip--active]="selectedCategory() === ''"
+      (click)="onSelectCategory('')"
+    >
+      All
+    </button>
+    @for (category of categories; track category) {
+      <button
+        type="button"
+        class="home__category-chip"
+        [class.home__category-chip--active]="selectedCategory() === category"
+        (click)="onSelectCategory(category)"
+      >
+        {{ category }}
+      </button>
+    }
+  </section>
+
+  <section class="home__brands-section" aria-label="Featured brands">
+    <div class="home__slider-header">
+      <h2 class="home__slider-title">Featured Brands</h2>
+      <p class="home__slider-subtitle">Shop your favourite labels</p>
+    </div>
+    <swiper-container #brandSwiper init="false" class="home__brands-swiper">
+      @for (brand of brands; track brand.id) {
+        <swiper-slide class="home__brand-slide">
+          <button type="button" class="home__brand-card" (click)="onSelectCategory(brand.category)">
+            <span class="home__brand-initial">{{ brand.name[0] }}</span>
+            <span class="home__brand-name">{{ brand.name }}</span>
+          </button>
+        </swiper-slide>
+      }
+    </swiper-container>
+  </section>
+
+  <section class="home__slider-section">
+    <div class="home__slider-header">
+      <h2 class="home__slider-title">Popular Products</h2>
+      <p class="home__slider-subtitle">Highest rated by our customers</p>
+    </div>
+    <swiper-container #popularSwiper init="false" class="home__swiper">
+      @for (product of popularProducts; track product.id) {
+        <swiper-slide>
+          <app-product-card
+            [product]="product"
+            [isWishlisted]="wishlist.has(product.id)"
+            (addToCart)="onAddToCart($event)"
+            (wishlistToggle)="wishlist.toggle($event)"
+          />
+        </swiper-slide>
+      }
+    </swiper-container>
+  </section>
+
+  <section class="home__slider-section">
+    <div class="home__slider-header">
+      <h2 class="home__slider-title">New Arrivals</h2>
+      <p class="home__slider-subtitle">Fresh picks just added to the store</p>
+    </div>
+    <swiper-container #newSwiper init="false" class="home__swiper">
+      @for (product of newProducts; track product.id) {
+        <swiper-slide>
+          <app-product-card
+            [product]="product"
+            [isWishlisted]="wishlist.has(product.id)"
+            (addToCart)="onAddToCart($event)"
+            (wishlistToggle)="wishlist.toggle($event)"
+          />
+        </swiper-slide>
+      }
+    </swiper-container>
+  </section>
+
+  <section>
+    <header class="home__header">
+      <h1 class="home__title">All Products</h1>
+      <p class="home__subtitle">{{ filteredProducts().length }} items</p>
+    </header>
+
+    <div class="home__controls">
+      <input
+        type="search"
+        class="home__search"
+        placeholder="Search products..."
+        [value]="searchQuery()"
+        (input)="onSearchInput($event)"
+      />
+      <select class="home__filter" [value]="selectedCategory()" (change)="onCategoryChange($event)">
+        <option value="">All Categories</option>
+        @for (cat of categories; track cat) {
+          <option [value]="cat">{{ cat }}</option>
+        }
+      </select>
+      <select class="home__filter" [value]="selectedSort()" (change)="onSortChange($event)">
+        <option value="featured">Featured</option>
+        <option value="rating">Highest Rated</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+      </select>
+      @if (hasActiveFilters()) {
+        <button type="button" class="home__clear-btn" (click)="clearFilters()">Clear filters</button>
+      }
+    </div>
+
+    @if (hasActiveFilters()) {
+      <div class="home__filter-summary" aria-label="Active filters summary">
+        <span class="home__filter-pill">{{ filteredProducts().length }} matches</span>
+        @if (selectedCategory()) {
+          <span class="home__filter-pill">Category: {{ selectedCategory() }}</span>
+        }
+        @if (searchQuery().trim()) {
+          <span class="home__filter-pill">Search: {{ searchQuery().trim() }}</span>
+        }
+        @if (selectedSort() !== 'featured') {
+          <span class="home__filter-pill">Sorted: {{ selectedSort() }}</span>
+        }
+      </div>
+    }
+
+    <div class="home__grid">
+      @for (product of filteredProducts(); track product.id) {
+        <app-product-card
+          [product]="product"
+          [isWishlisted]="wishlist.has(product.id)"
+          (addToCart)="onAddToCart($event)"
+          (wishlistToggle)="wishlist.toggle($event)"
+        />
+      } @empty {
+        <p class="home__empty">No products match your search.</p>
+      }
+    </div>
+  </section>
+</div>

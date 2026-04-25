@@ -1,0 +1,100 @@
+<div class="detail">
+  <a routerLink="/" class="detail__back">← Back to products</a>
+
+  @if (product(); as p) {
+    <div class="detail__hero">
+      <div class="detail__card">
+        <div class="detail__image-wrap">
+          <button
+            type="button"
+            class="detail__wishlist"
+            [class.detail__wishlist--active]="isWishlisted()"
+            (click)="toggleWishlist()"
+            [attr.aria-pressed]="isWishlisted()"
+            [title]="isWishlisted() ? 'Remove from wishlist' : 'Save to wishlist'"
+          >
+            @if (isWishlisted()) {
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            } @else {
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            }
+          </button>
+          <img [src]="p.image" [alt]="p.title" class="detail__image" />
+        </div>
+        <div class="detail__info">
+          <div class="detail__eyebrow-row">
+            <span class="detail__category">{{ p.category }}</span>
+            <span class="detail__badge">Free shipping</span>
+          </div>
+          <h1 class="detail__title">{{ p.title }}</h1>
+          <div class="detail__rating">
+            <span class="detail__stars">★ {{ p.rating.rate }}</span>
+            <span class="detail__count">({{ p.rating.count }} reviews)</span>
+            <span class="detail__separator">•</span>
+            <span>In stock</span>
+        </div>
+          <p class="detail__price">${{ p.price.toFixed(2) }}</p>
+          <p class="detail__description">{{ p.description }}</p>
+
+          <div class="detail__highlights" aria-label="Purchase highlights">
+            <div class="detail__highlight">
+              <strong>Fast dispatch</strong>
+              <span>Ships within 24 hours</span>
+            </div>
+            <div class="detail__highlight">
+              <strong>Easy returns</strong>
+              <span>30-day return window</span>
+            </div>
+            <div class="detail__highlight">
+              <strong>Secure checkout</strong>
+              <span>Protected payment flow</span>
+            </div>
+          </div>
+
+          <div class="detail__purchase-row">
+            <div class="detail__quantity" aria-label="Select quantity">
+              <button type="button" class="detail__qty-btn" (click)="decreaseQuantity()" [disabled]="quantity() === 1">−</button>
+              <span class="detail__qty-value">{{ quantity() }}</span>
+              <button type="button" class="detail__qty-btn" (click)="increaseQuantity()" [disabled]="quantity() === 10">+</button>
+            </div>
+            <div class="detail__actions">
+              <button type="button" class="btn btn--primary" (click)="addToCart()">
+                Add {{ quantity() }} to Cart
+              </button>
+              <a routerLink="/cart" class="btn btn--outline">View Cart ({{ cartCount() }})</a>
+            </div>
+          </div>
+
+          @if (added()) {
+            <p class="detail__confirm">Added to cart!</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (relatedProducts().length > 0) {
+      <section class="detail__related" aria-label="Related products">
+        <div class="detail__related-header">
+          <h2 class="detail__related-title">You may also like</h2>
+          <p class="detail__related-subtitle">Similar picks from the same catalog</p>
+        </div>
+        <div class="detail__related-grid">
+          @for (relatedProduct of relatedProducts(); track relatedProduct.id) {
+            <app-product-card
+              [product]="relatedProduct"
+              [isWishlisted]="wishlist.has(relatedProduct.id)"
+              (addToCart)="onAddRelatedToCart($event)"
+              (wishlistToggle)="wishlist.toggle($event)"
+            />
+          }
+        </div>
+      </section>
+    }
+  } @else {
+    <p class="detail__not-found">Product not found.</p>
+  }
+</div>

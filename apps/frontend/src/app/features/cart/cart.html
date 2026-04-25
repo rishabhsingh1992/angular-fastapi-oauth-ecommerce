@@ -1,0 +1,65 @@
+<div class="cart">
+  <h1 class="cart__title">Shopping Cart</h1>
+
+  @if (cart.items().length === 0) {
+    <div class="cart__empty">
+      <p>Your cart is empty.</p>
+      <a routerLink="/" class="btn btn--primary">Continue Shopping</a>
+    </div>
+  } @else {
+    <div class="cart__layout">
+      <ul class="cart__list">
+        @for (item of cart.items(); track item.product.id) {
+          <li class="cart__item">
+            <img [src]="item.product.image" [alt]="item.product.title" class="cart__item-image" />
+            <div class="cart__item-info">
+              <a [routerLink]="['/products', item.product.id]" class="cart__item-title">
+                {{ item.product.title }}
+              </a>
+              <span class="cart__item-price">${{ item.product.price.toFixed(2) }} each</span>
+            </div>
+            <div class="cart__item-qty">
+              <button
+                type="button"
+                class="qty-btn"
+                (click)="onDecreaseQuantity(item.product.id, item.quantity)"
+              >−</button>
+              <span class="qty-value">{{ item.quantity }}</span>
+              <button
+                type="button"
+                class="qty-btn"
+                (click)="onIncreaseQuantity(item.product.id, item.quantity)"
+              >+</button>
+            </div>
+            <span class="cart__item-subtotal">${{ (item.product.price * item.quantity).toFixed(2) }}</span>
+            <button
+              type="button"
+              class="cart__item-remove"
+              (click)="onRemoveItem(item.product.id)"
+              aria-label="Remove item"
+            >✕</button>
+          </li>
+        }
+      </ul>
+
+      <aside class="cart__summary">
+        <h2 class="cart__summary-title">Order Summary</h2>
+        <div class="cart__summary-row">
+          <span>Items ({{ cart.itemCount() }})</span>
+          <span>${{ cart.total().toFixed(2) }}</span>
+        </div>
+        <div class="cart__summary-row">
+          <span>Shipping</span>
+          <span class="cart__free">Free</span>
+        </div>
+        <hr class="cart__divider" />
+        <div class="cart__summary-row cart__summary-total">
+          <span>Total</span>
+          <span>${{ cart.total().toFixed(2) }}</span>
+        </div>
+        <a routerLink="/checkout" class="btn btn--primary btn--block">Proceed to Checkout</a>
+        <a routerLink="/" class="btn btn--ghost btn--block">Continue Shopping</a>
+      </aside>
+    </div>
+  }
+</div>

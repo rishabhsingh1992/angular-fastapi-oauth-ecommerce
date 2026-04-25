@@ -1,0 +1,150 @@
+<div class="settings">
+  <header class="settings__header">
+    <h1 class="settings__title">Settings</h1>
+    <p class="settings__subtitle">Manage your account and preferences</p>
+  </header>
+
+  <section class="settings__card" aria-labelledby="profile-heading">
+    <h2 id="profile-heading" class="settings__card-heading">Profile</h2>
+    @if (auth.isLoggedIn()) {
+      <div class="settings__profile">
+        <img
+          [src]="auth.currentUser()!.avatarUrl"
+          [alt]="auth.currentUser()!.name"
+          class="settings__avatar"
+          width="64"
+          height="64"
+        />
+        <div>
+          <p class="settings__profile-name">{{ auth.currentUser()!.name }}</p>
+          <p class="settings__profile-email">{{ auth.currentUser()!.email }}</p>
+        </div>
+      </div>
+    } @else {
+      <div class="settings__row">
+        <div class="settings__row-info">
+          <span class="settings__row-label">Not signed in</span>
+          <span class="settings__row-desc">Sign in to access your profile and order history</span>
+        </div>
+        <a routerLink="/login" class="settings__btn settings__btn--primary">Sign In</a>
+      </div>
+    }
+  </section>
+
+  <section class="settings__card" aria-labelledby="appearance-heading">
+    <h2 id="appearance-heading" class="settings__card-heading">Appearance</h2>
+    <div class="settings__row">
+      <div class="settings__row-info">
+        <span class="settings__row-label">Dark Mode</span>
+        <span class="settings__row-desc">Switch between light and dark themes</span>
+      </div>
+      <label class="settings__toggle" [title]="theme.isDark() ? 'Switch to light' : 'Switch to dark'">
+        <input
+          type="checkbox"
+          [checked]="theme.isDark()"
+          (change)="toggleTheme()"
+          class="settings__toggle-input"
+        />
+        <span class="settings__toggle-track"></span>
+      </label>
+    </div>
+  </section>
+
+  <section class="settings__card" aria-labelledby="notif-heading">
+    <h2 id="notif-heading" class="settings__card-heading">Notifications</h2>
+    <div class="settings__row">
+      <div class="settings__row-info">
+        <span class="settings__row-label">Email Notifications</span>
+        <span class="settings__row-desc">Receive important account updates via email</span>
+      </div>
+      <label class="settings__toggle">
+        <input
+          type="checkbox"
+          [checked]="notifPrefs().emailNotifications"
+          (change)="toggleNotif('emailNotifications')"
+          class="settings__toggle-input"
+        />
+        <span class="settings__toggle-track"></span>
+      </label>
+    </div>
+    <div class="settings__row">
+      <div class="settings__row-info">
+        <span class="settings__row-label">Order Updates</span>
+        <span class="settings__row-desc">Get notified when your order status changes</span>
+      </div>
+      <label class="settings__toggle">
+        <input
+          type="checkbox"
+          [checked]="notifPrefs().orderUpdates"
+          (change)="toggleNotif('orderUpdates')"
+          class="settings__toggle-input"
+        />
+        <span class="settings__toggle-track"></span>
+      </label>
+    </div>
+    <div class="settings__row">
+      <div class="settings__row-info">
+        <span class="settings__row-label">Promotional Offers</span>
+        <span class="settings__row-desc">Deals, discounts and product recommendations</span>
+      </div>
+      <label class="settings__toggle">
+        <input
+          type="checkbox"
+          [checked]="notifPrefs().promotionalOffers"
+          (change)="toggleNotif('promotionalOffers')"
+          class="settings__toggle-input"
+        />
+        <span class="settings__toggle-track"></span>
+      </label>
+    </div>
+  </section>
+
+  <section class="settings__card" aria-labelledby="privacy-heading">
+    <h2 id="privacy-heading" class="settings__card-heading">Privacy</h2>
+    <div class="settings__row">
+      <div class="settings__row-info">
+        <span class="settings__row-label">Share Usage Data</span>
+        <span class="settings__row-desc">Help us improve by sharing anonymous analytics</span>
+      </div>
+      <label class="settings__toggle">
+        <input
+          type="checkbox"
+          [checked]="privacyPrefs().shareUsageData"
+          (change)="togglePrivacy('shareUsageData')"
+          class="settings__toggle-input"
+        />
+        <span class="settings__toggle-track"></span>
+      </label>
+    </div>
+    <div class="settings__row">
+      <div class="settings__row-info">
+        <span class="settings__row-label">Personalised Ads</span>
+        <span class="settings__row-desc">See ads tailored to your browsing activity</span>
+      </div>
+      <label class="settings__toggle">
+        <input
+          type="checkbox"
+          [checked]="privacyPrefs().personalisedAds"
+          (change)="togglePrivacy('personalisedAds')"
+          class="settings__toggle-input"
+        />
+        <span class="settings__toggle-track"></span>
+      </label>
+    </div>
+  </section>
+
+  @if (auth.isLoggedIn()) {
+    <section class="settings__card" aria-labelledby="account-heading">
+      <h2 id="account-heading" class="settings__card-heading">Account</h2>
+      <div class="settings__row">
+        <div class="settings__row-info">
+          <span class="settings__row-label">Sign Out</span>
+          <span class="settings__row-desc">Log out of your account on this device</span>
+        </div>
+        <button type="button" class="settings__btn settings__btn--danger-outline" (click)="onLogout()">
+          Log out
+        </button>
+      </div>
+    </section>
+  }
+</div>
