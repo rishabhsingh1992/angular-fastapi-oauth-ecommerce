@@ -22,18 +22,30 @@ export interface Cart {
   items: CartItem[];
 }
 
+export interface ShippingAddress {
+  full_name: string;
+  address: string;
+  city: string;
+  postal_code: string;
+  country: string;
+}
+
 export interface OrderItem {
   product_id: number;
+  title: string;
+  image: string;
+  price: number;
   quantity: number;
-  unit_price_cents: number;
 }
 
 export interface Order {
-  id: number;
-  user_id: number;
-  items: OrderItem[];
+  id: string;
+  user_id: string;
+  lines: OrderItem[];
+  shipping: ShippingAddress;
   status: string;
-  total_cents: number;
+  total: number;
+  created_at: string;
 }
 
 export interface ApiError {

@@ -1,60 +1,34 @@
 <div class="orders">
-  <h1 class="orders__title">Order History</h1>
+  <h1 class="orders__title">Track Your Order</h1>
+  <p class="orders__subtitle">Enter your order ID to see the latest status from the backend.</p>
 
-  @if (orders().length === 0) {
-    <div class="orders__empty">
-      <p>You haven't placed any orders yet.</p>
-      <a routerLink="/" class="btn btn--primary">Start Shopping</a>
-    </div>
-  } @else {
-    <div class="orders__list">
-      @for (order of orders(); track order.id) {
-        <div class="order-card" [class.order-card--expanded]="isExpanded(order.id)">
-          <div
-            class="order-card__header"
-            role="button"
-            tabindex="0"
-            [attr.aria-expanded]="isExpanded(order.id)"
-            (click)="toggle(order.id)"
-            (keydown)="onHeaderKeydown($event, order.id)"
-          >
-            <div class="order-card__meta">
-              <span class="order-card__id">{{ order.id }}</span>
-              <span class="order-card__date">{{ formatDate(order.createdAt) }}</span>
-            </div>
-            <div class="order-card__right">
-              <span class="order-card__status" [class]="'status--' + order.status">
-                {{ order.status }}
-              </span>
-              <span class="order-card__total">${{ order.total.toFixed(2) }}</span>
-              <span class="order-card__chevron">{{ isExpanded(order.id) ? '▲' : '▼' }}</span>
-            </div>
-          </div>
+  <form class="orders__form" (ngSubmit)="trackOrder()">
+    <input
+      class="orders__input"
+      type="text"
+      name="orderId"
+      [ngModel]="orderId()"
+      (ngModelChange)="orderId.set($event)"
+      placeholder="e.g. 507f1f77bcf86cd799439011"
+    />
+    <button class="btn btn--primary" type="submit" [disabled]="loading()">
+      {{ loading() ? 'Checking…' : 'Track Order' }}
+    </button>
+  </form>
 
-          @if (isExpanded(order.id)) {
-            <div class="order-card__body">
-              <div class="order-card__shipping">
-                <strong>Ship to:</strong> {{ order.shipping.fullName }}, {{ order.shipping.address }},
-                {{ order.shipping.city }}, {{ order.shipping.postalCode }}, {{ order.shipping.country }}
-              </div>
-              <ul class="order-card__lines">
-                @for (line of order.lines; track line.productId) {
-                  <li class="order-line">
-                    <img [src]="line.image" [alt]="line.title" class="order-line__img" />
-                    <span class="order-line__title">{{ line.title }}</span>
-                    <span class="order-line__qty">x {{ line.quantity }}</span>
-                    <span class="order-line__price">${{ (line.price * line.quantity).toFixed(2) }}</span>
-                  </li>
-                }
-              </ul>
-              <div class="order-card__total-row">
-                <span>Order Total</span>
-                <strong>${{ order.total.toFixed(2) }}</strong>
-              </div>
-            </div>
-          }
-        </div>
-      }
+  @if (error()) {
+    <p class="orders__error">{{ error() }}</p>
+  }
+
+  @if (order(); as currentOrder) {
+    <div class="order-card">
+      <div class="order-card__row"><strong>Order ID:</strong> <span>{{ currentOrder.id }}</span></div>
+      <div class="order-card__row">
+        <strong>Status:</strong>
+        <span class="order-card__status" [class]="'status--' + currentOrder.status">{{ currentOrder.status }}</span>
+      </div>
+      <div class="order-card__row"><strong>Placed:</strong> <span>{{ formatDate(currentOrder.created_at) }}</span></div>
+      <div class="order-card__row"><strong>Total:</strong> <span>${{ currentOrder.total.toFixed(2) }}</span></div>
     </div>
   }
 </div>
