@@ -1,40 +1,53 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
-import { MOCK_ORDERS } from '../../mock/mock-data';
-import { Order } from '../../models/product.model';
+import { ApiService } from '../../api/api.service';
+import { ApiError, Order } from '../../api/api.types';
 
 @Component({
   selector: 'app-orders',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [FormsModule],
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })
 export class OrdersComponent {
-  protected readonly orders = signal<Order[]>(MOCK_ORDERS);
-  protected readonly expandedId = signal<string | null>(null);
+  protected readonly orderId = signal('');
+  protected readonly order = signal<Order | null>(null);
+  protected readonly loading = signal(false);
+  protected readonly error = signal<string | null>(null);
+
+  private readonly api = inject(ApiService);
   private readonly dateFormatter = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
   });
 
-  protected toggle(id: string): void {
-    this.expandedId.update(current => (current === id ? null : id));
-  }
-
-  protected isExpanded(orderId: string): boolean {
-    return this.expandedId() === orderId;
-  }
-
-  protected onHeaderKeydown(event: KeyboardEvent, orderId: string): void {
-    if (event.key !== 'Enter' && event.key !== ' ') {
+  protected trackOrder(): void {
+    const id = this.orderId().trim();
+    if (!id) {
+      this.error.set('Please enter an order ID.');
+      this.order.set(null);
       return;
     }
 
-    event.preventDefault();
-    this.toggle(orderId);
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.api.getOrder(id).subscribe({
+      next: (order) => {
+        this.order.set(order);
+        this.loading.set(false);
+      },
+      error: (apiError: ApiError) => {
+        this.order.set(null);
+        this.loading.set(false);
+        this.error.set(apiError.message || 'Could not fetch order status.');
+      },
+    });
   }
 
   protected formatDate(iso: string): string {

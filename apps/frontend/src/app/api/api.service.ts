@@ -40,7 +40,7 @@ export class ApiService {
     return this.get<Cart>(`/carts/${cartId}`);
   }
 
-  getOrder(orderId: number): Observable<Order> {
+  getOrder(orderId: string): Observable<Order> {
     return this.get<Order>(`/orders/${orderId}`);
   }
 
