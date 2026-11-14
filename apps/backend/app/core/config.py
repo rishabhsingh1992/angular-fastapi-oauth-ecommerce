@@ -15,6 +15,7 @@ class Settings(BaseSettings):
 
     # General
     app_env: str = Field(default="development", alias="APP_ENV")
+    frontend_url: str = Field(default="http://localhost:4200", alias="FRONTEND_URL")
     secret_key: str = Field(default="change-me-in-production", alias="SECRET_KEY")
 
     # JWT

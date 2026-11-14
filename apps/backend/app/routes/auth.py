@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
+from app.core.config import get_settings
 from app.core.dependencies import get_current_user
 from app.core.security import create_access_token, decode_token
 from app.db.mongo import get_db
@@ -37,7 +38,8 @@ async def google_callback(code: str, db=Depends(get_db)):
             detail="OAuth code exchange failed",
         )
     # Redirect to Angular with tokens in the URL fragment (replace with HttpOnly cookies in prod)
-    frontend_url = f"http://localhost:4200/auth/callback#access_token={access_token}&refresh_token={refresh_token}"
+    settings = get_settings()
+    frontend_url = f"{settings.frontend_url}/auth/callback#access_token={access_token}&refresh_token={refresh_token}"
     return RedirectResponse(frontend_url)
 
 

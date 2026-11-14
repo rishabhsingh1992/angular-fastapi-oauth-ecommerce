@@ -5,7 +5,6 @@
 ## Backend
 
 ### Project Setup
-- [x] Create `apps/backend/main.py` with FastAPI app instance
 - [x] Add Pydantic `Settings` class for environment config
 - [x] Configure CORS middleware for Angular dev origin (`localhost:4200`)
 - [x] `app/core/config.py` — Settings with MongoDB URI, JWT fields, Google OAuth fields
