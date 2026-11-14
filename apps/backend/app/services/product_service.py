@@ -1,18 +1,10 @@
 """Product service — proxies the Fake Store API (read-only)."""
 
-from functools import lru_cache
-
 import httpx
 
 from app.schemas.product import ProductListParams, ProductListResponse, ProductResponse
 
 FAKE_STORE_BASE = "https://fakestoreapi.com"
-
-
-@lru_cache(maxsize=1)
-def _cached_products() -> list[dict]:
-    """Synchronous bootstrap cache — populated lazily on first async call."""
-    return []
 
 
 async def get_products(params: ProductListParams) -> ProductListResponse:
