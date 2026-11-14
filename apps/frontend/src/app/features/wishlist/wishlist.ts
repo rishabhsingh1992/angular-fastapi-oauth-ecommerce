@@ -21,13 +21,13 @@ export class WishlistComponent {
     `${this.wishlist.count()} ${this.wishlist.count() === 1 ? 'item' : 'items'} saved`;
 
   protected onAddToCart(product: Product): void {
-    this.cart.addItem(product);
+    this.cart.addItem(product.id);
   }
 
   protected addAllToCart(): void {
     const items = this.wishlist.items();
     for (const product of items) {
-      this.cart.addItem(product);
+      this.cart.addItem(product.id);
     }
   }
 }

@@ -13,15 +13,15 @@ import { CartService } from '../../services/cart.service';
 export class CartComponent {
   protected readonly cart = inject(CartService);
 
-  protected onIncreaseQuantity(productId: number, quantity: number): void {
-    this.cart.updateQuantity(productId, quantity + 1);
+  protected async onIncreaseQuantity(productId: number, quantity: number): Promise<void> {
+    await this.cart.updateQuantity(productId, quantity + 1);
   }
 
-  protected onDecreaseQuantity(productId: number, quantity: number): void {
-    this.cart.updateQuantity(productId, quantity - 1);
+  protected async onDecreaseQuantity(productId: number, quantity: number): Promise<void> {
+    await this.cart.updateQuantity(productId, quantity - 1);
   }
 
-  protected onRemoveItem(productId: number): void {
-    this.cart.removeItem(productId);
+  protected async onRemoveItem(productId: number): Promise<void> {
+    await this.cart.removeItem(productId);
   }
 }

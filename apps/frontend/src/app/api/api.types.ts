@@ -6,20 +6,38 @@ export interface User {
 
 export interface Product {
   id: number;
-  name: string;
-  price_cents: number;
-  currency: string;
+  title: string;
+  price: number;
+  description: string;
+  category: string;
+  image: string;
+  rating: {
+    rate: number;
+    count: number;
+  };
 }
 
-export interface CartItem {
+export interface CartItemResponse {
   product_id: number;
+  title: string;
+  image: string;
+  price: number;
   quantity: number;
 }
 
-export interface Cart {
-  id: number;
-  user_id: number;
-  items: CartItem[];
+export interface CartResponse {
+  user_id: string;
+  items: CartItemResponse[];
+  total: number;
+}
+
+export interface AddCartItemRequest {
+  product_id: number;
+  quantity?: number;
+}
+
+export interface UpdateCartItemRequest {
+  quantity: number;
 }
 
 export interface ShippingAddress {
@@ -30,7 +48,7 @@ export interface ShippingAddress {
   country: string;
 }
 
-export interface OrderItem {
+export interface OrderLineResponse {
   product_id: number;
   title: string;
   image: string;
@@ -38,14 +56,18 @@ export interface OrderItem {
   quantity: number;
 }
 
-export interface Order {
+export interface OrderResponse {
   id: string;
   user_id: string;
-  lines: OrderItem[];
+  lines: OrderLineResponse[];
   shipping: ShippingAddress;
   status: string;
   total: number;
   created_at: string;
+}
+
+export interface CreateOrderRequest {
+  shipping: ShippingAddress;
 }
 
 export interface ApiError {
@@ -54,3 +76,8 @@ export interface ApiError {
   message: string;
   details?: unknown;
 }
+
+// Type aliases for backward compatibility
+export type Cart = CartResponse;
+export type Order = OrderResponse;
+

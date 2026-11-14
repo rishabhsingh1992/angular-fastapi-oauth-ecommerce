@@ -14,7 +14,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { register } from 'swiper/element/bundle';
 
-import { MOCK_BRANDS, MOCK_CATEGORIES, MOCK_PRODUCTS } from '../../mock/mock-data';
+import { ApiService } from '../../api/api.service';
 import { Brand, Product } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
@@ -62,6 +62,7 @@ const SLIDER_PARAMS = {
 export class HomeComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly cart = inject(CartService);
+  private readonly api = inject(ApiService);
   protected readonly wishlist = inject(WishlistService);
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
@@ -73,23 +74,38 @@ export class HomeComponent {
   protected readonly searchQuery = signal('');
   protected readonly selectedCategory = signal('');
   protected readonly selectedSort = signal<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured');
-  protected readonly categories = MOCK_CATEGORIES;
-  protected readonly brands: Brand[] = MOCK_BRANDS;
+  protected readonly isLoading = signal(true);
+  protected readonly error = signal<string | null>(null);
 
-  protected readonly popularProducts = [...MOCK_PRODUCTS].sort((a, b) => b.rating.rate - a.rating.rate);
-  protected readonly newProducts = [...MOCK_PRODUCTS].slice().reverse();
-  protected readonly featuredProduct = this.popularProducts[0] ?? null;
-  protected readonly averageRating =
-    MOCK_PRODUCTS.reduce((sum, product) => sum + product.rating.rate, 0) / MOCK_PRODUCTS.length;
+  private readonly products$ = this.api.getProducts();
+  private readonly categories$ = this.api.getCategories();
+  protected readonly products = toSignal(this.products$, { initialValue: [] });
+  protected readonly categories = toSignal(this.categories$, { initialValue: [] });
+  protected readonly brands: Brand[] = [];
+
+  protected readonly popularProducts = computed(() => {
+    const prods = this.products();
+    return [...prods].sort((a, b) => b.rating.rate - a.rating.rate);
+  });
+  protected readonly newProducts = computed(() => {
+    const prods = this.products();
+    return [...prods].slice().reverse();
+  });
+  protected readonly featuredProduct = computed(() => this.popularProducts()[0] ?? null);
+  protected readonly averageRating = computed(() => {
+    const prods = this.products();
+    return prods.length > 0 ? prods.reduce((sum, product) => sum + product.rating.rate, 0) / prods.length : 0;
+  });
   protected readonly hasActiveFilters = computed(
     () => !!this.searchQuery().trim() || !!this.selectedCategory() || this.selectedSort() !== 'featured',
   );
 
   protected readonly filteredProducts = computed(() => {
+    const prods = this.products();
     const query = this.searchQuery().trim().toLowerCase();
     const category = this.selectedCategory();
     const sort = this.selectedSort();
-    const filteredProducts = MOCK_PRODUCTS.filter(p => {
+    const filteredProducts = prods.filter(p => {
       const matchesQuery = !query || p.title.toLowerCase().includes(query) || p.description.toLowerCase().includes(query);
       const matchesCategory = !category || p.category === category;
       return matchesQuery && matchesCategory;
@@ -123,7 +139,7 @@ export class HomeComponent {
   }
 
   protected onAddToCart(product: Product): void {
-    this.cart.addItem(product);
+    this.cart.addItem(product.id);
   }
 
   protected onSelectCategory(category: string): void {
