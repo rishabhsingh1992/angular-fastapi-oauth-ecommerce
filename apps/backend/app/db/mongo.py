@@ -1,6 +1,7 @@
 """Motor (async MongoDB) client and FastAPI dependency."""
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from pymongo import ASCENDING, DESCENDING
 
 from app.core.config import get_settings
 
@@ -12,6 +13,18 @@ async def connect_db() -> None:
     global _client
     settings = get_settings()
     _client = AsyncIOMotorClient(settings.mongodb_uri)
+    
+    db = _client[settings.mongodb_db_name]
+    
+    # Create indexes idempotently
+    # Unique email index on users collection
+    await db.users.create_index("email", unique=True, sparse=True)
+    
+    # Index on orders.user_id for filtering user orders
+    await db.orders.create_index("user_id", sparse=True)
+    
+    # Descending index on orders.created_at for sorting recent orders first
+    await db.orders.create_index([("created_at", DESCENDING)], sparse=True)
 
 
 async def close_db() -> None:

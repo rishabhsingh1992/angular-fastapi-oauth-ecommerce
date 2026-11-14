@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 
 import { environment } from '../../environments/environment';
-import { ApiError, Cart, Order, Product, User } from './api.types';
+import { AddCartItemRequest, ApiError, CartResponse, CreateOrderRequest, Order, OrderResponse, Product, UpdateCartItemRequest, User } from './api.types';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -20,8 +20,8 @@ export class ApiService {
       .pipe(catchError((error) => this.handleError(error)));
   }
 
-  put<TRequest, TResponse>(path: string, body: TRequest): Observable<TResponse> {
-    return this.http.put<TResponse>(this.toUrl(path), body).pipe(catchError((error) => this.handleError(error)));
+  patch<TRequest, TResponse>(path: string, body: TRequest): Observable<TResponse> {
+    return this.http.patch<TResponse>(this.toUrl(path), body).pipe(catchError((error) => this.handleError(error)));
   }
 
   delete<TResponse>(path: string): Observable<TResponse> {
@@ -36,12 +36,46 @@ export class ApiService {
     return this.get<Product>(`/products/${productId}`);
   }
 
-  getCart(cartId: number): Observable<Cart> {
-    return this.get<Cart>(`/carts/${cartId}`);
+  getProducts(): Observable<Product[]> {
+    return this.get<Product[]>('/products');
   }
 
-  getOrder(orderId: string): Observable<Order> {
-    return this.get<Order>(`/orders/${orderId}`);
+  getCategories(): Observable<string[]> {
+    return this.get<string[]>('/products/categories');
+  }
+
+  // Cart endpoints
+  getCart(): Observable<CartResponse> {
+    return this.get<CartResponse>('/cart');
+  }
+
+  addCartItem(request: AddCartItemRequest): Observable<CartResponse> {
+    return this.post<AddCartItemRequest, CartResponse>('/cart/items', request);
+  }
+
+  updateCartItem(productId: number, request: UpdateCartItemRequest): Observable<CartResponse> {
+    return this.patch<UpdateCartItemRequest, CartResponse>(`/cart/items/${productId}`, request);
+  }
+
+  removeCartItem(productId: number): Observable<CartResponse> {
+    return this.delete<CartResponse>(`/cart/items/${productId}`);
+  }
+
+  clearCart(): Observable<CartResponse> {
+    return this.delete<CartResponse>('/cart');
+  }
+
+  // Order endpoints
+  createOrder(request: CreateOrderRequest): Observable<OrderResponse> {
+    return this.post<CreateOrderRequest, OrderResponse>('/orders', request);
+  }
+
+  listOrders(): Observable<OrderResponse[]> {
+    return this.get<OrderResponse[]>('/orders');
+  }
+
+  getOrder(orderId: string): Observable<OrderResponse> {
+    return this.get<OrderResponse>(`/orders/${orderId}`);
   }
 
   private toUrl(path: string): string {

@@ -18,7 +18,7 @@
 - [x] `app/models/user.py` — `UserDocument` (Mongo document)
 - [x] `app/models/cart.py` — `CartDocument`, `CartItemDocument`
 - [x] `app/models/order.py` — `OrderDocument`, `OrderLineDocument`, `OrderStatus`
-- [ ] Add MongoDB indexes (email unique, orders.user_id, orders.created_at)
+- [x] Add MongoDB indexes (email unique, orders.user_id, orders.created_at)
 
 ### Authentication (OAuth)
 - [x] `app/routes/auth.py` — `GET /auth/google` redirect, `GET /auth/callback`, `POST /auth/refresh`, `GET /auth/me`

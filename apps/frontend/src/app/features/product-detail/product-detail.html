@@ -1,7 +1,18 @@
 <div class="detail">
-  <a routerLink="/" class="detail__back">← Back to products</a>
+  @if (error(); as err) {
+    <div class="detail__error" aria-live="polite">
+      <p>Failed to load product: {{ err }}</p>
+    </div>
+  }
 
-  @if (product(); as p) {
+  @if (isLoading()) {
+    <div class="detail__loading" aria-live="polite">
+      <p>Loading product...</p>
+    </div>
+  } @else {
+    <a routerLink="/" class="detail__back">← Back to products</a>
+
+    @if (product(); as p) {
     <div class="detail__hero">
       <div class="detail__card">
         <div class="detail__image-wrap">
@@ -94,7 +105,8 @@
         </div>
       </section>
     }
-  } @else {
-    <p class="detail__not-found">Product not found.</p>
+    } @else {
+      <p class="detail__not-found">Product not found.</p>
+    }
   }
 </div>

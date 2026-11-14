@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
+import { ApiService } from '../../api/api.service';
 import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -36,8 +37,8 @@ import { AuthService } from '../../services/auth.service';
               <div class="form-row">
                 <div class="form-group">
                   <label for="fullName">Full Name</label>
-                  <input id="fullName" type="text" formControlName="fullName" placeholder="John Doe" />
-                  @if (form.get('fullName')?.invalid && form.get('fullName')?.touched) {
+                  <input id="fullName" type="text" formControlName="full_name" placeholder="John Doe" />
+                  @if (form.get('full_name')?.invalid && form.get('full_name')?.touched) {
                     <span class="form-error">Full name is required.</span>
                   }
                 </div>
@@ -61,8 +62,8 @@ import { AuthService } from '../../services/auth.service';
                 </div>
                 <div class="form-group">
                   <label for="postalCode">Postal Code</label>
-                  <input id="postalCode" type="text" formControlName="postalCode" placeholder="10001" />
-                  @if (form.get('postalCode')?.invalid && form.get('postalCode')?.touched) {
+                  <input id="postalCode" type="text" formControlName="postal_code" placeholder="10001" />
+                  @if (form.get('postal_code')?.invalid && form.get('postal_code')?.touched) {
                     <span class="form-error">Postal code is required.</span>
                   }
                 </div>
@@ -94,12 +95,12 @@ import { AuthService } from '../../services/auth.service';
 
           <aside class="checkout__summary">
             <h2 class="checkout__summary-title">Order Summary</h2>
-            @for (item of cart.items(); track item.product.id) {
+            @for (item of cart.items(); track item.product_id) {
               <div class="checkout__line">
-                <img [src]="item.product.image" [alt]="item.product.title" class="checkout__line-img" />
-                <span class="checkout__line-title">{{ item.product.title }}</span>
+                <img [src]="item.image" [alt]="item.title" class="checkout__line-img" />
+                <span class="checkout__line-title">{{ item.title }}</span>
                 <span class="checkout__line-qty">× {{ item.quantity }}</span>
-                <span class="checkout__line-price">\${{ (item.product.price * item.quantity).toFixed(2) }}</span>
+                <span class="checkout__line-price">\${{ (item.price * item.quantity).toFixed(2) }}</span>
               </div>
             }
             <hr class="checkout__divider" />
@@ -154,6 +155,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class CheckoutComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly api = inject(ApiService);
   private readonly router = inject(Router);
   protected readonly cart = inject(CartService);
   protected readonly auth = inject(AuthService);
@@ -162,10 +164,10 @@ export class CheckoutComponent {
   protected readonly orderPlaced = signal(false);
 
   protected readonly form = this.fb.group({
-    fullName: ['', Validators.required],
+    full_name: ['', Validators.required],
     address: ['', Validators.required],
     city: ['', Validators.required],
-    postalCode: ['', Validators.required],
+    postal_code: ['', Validators.required],
     country: ['', Validators.required]
   });
 
@@ -175,10 +177,20 @@ export class CheckoutComponent {
       return;
     }
     this.submitting.set(true);
-    // Simulate async order submission
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    this.cart.clear();
-    this.submitting.set(false);
-    this.orderPlaced.set(true);
+    try {
+      await this.api.createOrder({
+        shipping: {
+          full_name: this.form.get('full_name')?.value || '',
+          address: this.form.get('address')?.value || '',
+          city: this.form.get('city')?.value || '',
+          postal_code: this.form.get('postal_code')?.value || '',
+          country: this.form.get('country')?.value || ''
+        }
+      }).toPromise();
+      await this.cart.clear();
+      this.orderPlaced.set(true);
+    } finally {
+      this.submitting.set(false);
+    }
   }
 }

@@ -1,5 +1,16 @@
 <div class="home">
-  <section class="home__hero" aria-label="Store highlights">
+  @if (error(); as err) {
+    <div class="home__error" aria-live="polite">
+      <p>Failed to load products: {{ err }}</p>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="home__loading" aria-live="polite">
+      <p>Loading products...</p>
+    </div>
+  } @else {
+    <section class="home__hero" aria-label="Store highlights">
     <div class="home__hero-copy">
       <span class="home__eyebrow">New season picks</span>
       <h1 class="home__hero-title">Curated essentials for everyday shopping.</h1>
@@ -27,13 +38,13 @@
           <span>Featured brands</span>
         </div>
         <div class="home__stat-card">
-          <strong>{{ averageRating.toFixed(1) }}</strong>
+          <strong>{{ averageRating().toFixed(1) }}</strong>
           <span>Average rating</span>
         </div>
       </div>
     </div>
 
-    @if (featuredProduct; as product) {
+    @if (featuredProduct(); as product) {
       <aside class="home__hero-spotlight" aria-label="Featured product spotlight">
         <p class="home__spotlight-label">Editor pick</p>
         <img [src]="product.image" [alt]="product.title" class="home__spotlight-image" />
@@ -58,7 +69,7 @@
     >
       All
     </button>
-    @for (category of categories; track category) {
+    @for (category of categories(); track category) {
       <button
         type="button"
         class="home__category-chip"
@@ -93,7 +104,7 @@
       <p class="home__slider-subtitle">Highest rated by our customers</p>
     </div>
     <swiper-container #popularSwiper init="false" class="home__swiper">
-      @for (product of popularProducts; track product.id) {
+      @for (product of popularProducts(); track product.id) {
         <swiper-slide>
           <app-product-card
             [product]="product"
@@ -112,7 +123,7 @@
       <p class="home__slider-subtitle">Fresh picks just added to the store</p>
     </div>
     <swiper-container #newSwiper init="false" class="home__swiper">
-      @for (product of newProducts; track product.id) {
+      @for (product of newProducts(); track product.id) {
         <swiper-slide>
           <app-product-card
             [product]="product"
@@ -141,7 +152,7 @@
       />
       <select class="home__filter" [value]="selectedCategory()" (change)="onCategoryChange($event)">
         <option value="">All Categories</option>
-        @for (cat of categories; track cat) {
+        @for (cat of categories(); track cat) {
           <option [value]="cat">{{ cat }}</option>
         }
       </select>
@@ -184,4 +195,5 @@
       }
     </div>
   </section>
+  }
 </div>

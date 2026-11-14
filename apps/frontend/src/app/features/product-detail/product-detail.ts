@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
-import { MOCK_PRODUCTS } from '../../mock/mock-data';
+import { ApiService } from '../../api/api.service';
 import { Product } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
@@ -19,6 +19,7 @@ export class ProductDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cart = inject(CartService);
+  private readonly api = inject(ApiService);
   protected readonly wishlist = inject(WishlistService);
   private readonly paramMap = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
@@ -28,10 +29,15 @@ export class ProductDetailComponent {
   protected readonly cartCount = this.cart.itemCount;
   protected readonly added = signal(false);
   protected readonly quantity = signal(1);
+  protected readonly isLoading = signal(true);
+  protected readonly error = signal<string | null>(null);
+
+  private readonly products$ = this.api.getProducts();
+  protected readonly products = toSignal(this.products$, { initialValue: [] });
 
   protected readonly product = computed(() => {
     const id = Number(this.paramMap().get('id'));
-    return MOCK_PRODUCTS.find(p => p.id === id) ?? null;
+    return this.products().find(p => p.id === id) ?? null;
   });
   protected readonly isWishlisted = computed(() => {
     const product = this.product();
@@ -39,14 +45,15 @@ export class ProductDetailComponent {
   });
   protected readonly relatedProducts = computed(() => {
     const product = this.product();
+    const prods = this.products();
     if (!product) {
       return [];
     }
 
-    const sameCategory = MOCK_PRODUCTS.filter(
+    const sameCategory = prods.filter(
       candidate => candidate.id !== product.id && candidate.category === product.category,
     );
-    const fallback = MOCK_PRODUCTS.filter(candidate => candidate.id !== product.id);
+    const fallback = prods.filter(candidate => candidate.id !== product.id);
 
     return (sameCategory.length > 0 ? sameCategory : fallback).slice(0, 4);
   });
@@ -72,7 +79,7 @@ export class ProductDetailComponent {
     }
 
     for (let index = 0; index < this.quantity(); index += 1) {
-      this.cart.addItem(p);
+      this.cart.addItem(p.id);
     }
 
     this.added.set(true);
@@ -105,6 +112,6 @@ export class ProductDetailComponent {
   }
 
   protected onAddRelatedToCart(product: Product): void {
-    this.cart.addItem(product);
+    this.cart.addItem(product.id);
   }
 }

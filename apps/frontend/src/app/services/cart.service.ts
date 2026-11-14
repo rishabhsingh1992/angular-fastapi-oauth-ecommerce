@@ -1,44 +1,78 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
-import { CartItem, Product } from '../models/product.model';
+import { ApiService } from '../api/api.service';
+import { AddCartItemRequest, CartItemResponse, CartResponse } from '../api/api.types';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  private readonly _items = signal<CartItem[]>([]);
+  private readonly api = inject(ApiService);
+  private readonly _items = signal<CartItemResponse[]>([]);
+  private readonly _total = signal(0);
+  private readonly _loading = signal(false);
 
   readonly items = this._items.asReadonly();
+  readonly total = this._total.asReadonly();
+  readonly loading = this._loading.asReadonly();
   readonly itemCount = computed(() => this._items().reduce((sum, item) => sum + item.quantity, 0));
-  readonly total = computed(() =>
-    this._items().reduce((sum, item) => sum + item.product.price * item.quantity, 0)
-  );
 
-  addItem(product: Product): void {
-    this._items.update(items => {
-      const existing = items.find(i => i.product.id === product.id);
-      if (existing) {
-        return items.map(i =>
-          i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i
-        );
-      }
-      return [...items, { product, quantity: 1 }];
-    });
+  async loadCart(): Promise<void> {
+    this._loading.set(true);
+    try {
+      const cart = await firstValueFrom(this.api.getCart());
+      this._items.set(cart.items);
+      this._total.set(cart.total);
+    } finally {
+      this._loading.set(false);
+    }
   }
 
-  removeItem(productId: number): void {
-    this._items.update(items => items.filter(i => i.product.id !== productId));
+  async addItem(productId: number, quantity: number = 1): Promise<void> {
+    this._loading.set(true);
+    try {
+      const cart = await firstValueFrom(this.api.addCartItem({ product_id: productId, quantity }));
+      this._items.set(cart.items);
+      this._total.set(cart.total);
+    } finally {
+      this._loading.set(false);
+    }
   }
 
-  updateQuantity(productId: number, quantity: number): void {
+  async updateQuantity(productId: number, quantity: number): Promise<void> {
     if (quantity <= 0) {
-      this.removeItem(productId);
+      await this.removeItem(productId);
       return;
     }
-    this._items.update(items =>
-      items.map(i => (i.product.id === productId ? { ...i, quantity } : i))
-    );
+
+    this._loading.set(true);
+    try {
+      const cart = await firstValueFrom(this.api.updateCartItem(productId, { quantity }));
+      this._items.set(cart.items);
+      this._total.set(cart.total);
+    } finally {
+      this._loading.set(false);
+    }
   }
 
-  clear(): void {
-    this._items.set([]);
+  async removeItem(productId: number): Promise<void> {
+    this._loading.set(true);
+    try {
+      const cart = await firstValueFrom(this.api.removeCartItem(productId));
+      this._items.set(cart.items);
+      this._total.set(cart.total);
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  async clear(): Promise<void> {
+    this._loading.set(true);
+    try {
+      const cart = await firstValueFrom(this.api.clearCart());
+      this._items.set(cart.items);
+      this._total.set(cart.total);
+    } finally {
+      this._loading.set(false);
+    }
   }
 }

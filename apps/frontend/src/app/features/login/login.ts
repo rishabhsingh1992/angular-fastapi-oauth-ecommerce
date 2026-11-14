@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
@@ -7,26 +6,12 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-login',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule],
+  imports: [],
   template: `
     <div class="login">
       <div class="login__card">
         <div class="login__logo">ShopFast</div>
         <h1 class="login__title">Sign in to your account</h1>
-        <p class="login__subtitle">Use email/password or continue with Google.</p>
-
-        <form class="login__form" (ngSubmit)="signInWithPassword()">
-          <input class="login__input" type="email" [(ngModel)]="email" name="email" placeholder="Email" required />
-          <input class="login__input" type="text" [(ngModel)]="firstName" name="firstName" placeholder="First name" />
-          <input class="login__input" type="text" [(ngModel)]="lastName" name="lastName" placeholder="Last name" />
-          <input class="login__input" type="tel" [(ngModel)]="phoneNumber" name="phoneNumber" placeholder="Phone number" />
-          <input class="login__input" type="password" [(ngModel)]="password" name="password" placeholder="Password" required minlength="6" />
-          <button type="submit" class="btn btn--primary btn--full">Sign In</button>
-        </form>
-
-        <button type="button" class="btn btn--ghost btn--full" (click)="register()">Create Account</button>
-
-        <div class="login__divider">or</div>
 
         <button type="button" class="login__google-btn" (click)="signInWithGoogle()">
           <svg class="login__google-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -37,10 +22,6 @@ import { AuthService } from '../../services/auth.service';
           </svg>
           Continue with Google
         </button>
-
-        @if (error()) {
-          <p class="login__error">{{ error() }}</p>
-        }
       </div>
     </div>
   `,
@@ -48,63 +29,16 @@ import { AuthService } from '../../services/auth.service';
     .login { min-height: calc(100vh - 64px); display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; background: var(--bg-secondary); }
     .login__card { background: var(--bg); border: 1px solid var(--border); border-radius: 1rem; padding: 2.5rem 2rem; max-width: 400px; width: 100%; text-align: center; box-shadow: var(--shadow-sm); }
     .login__logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 1.5rem; }
-    .login__title { font-size: 1.25rem; font-weight: 700; color: var(--text); margin: 0 0 0.5rem; }
-    .login__subtitle { font-size: 0.9rem; color: var(--text-muted); margin: 0 0 1rem; }
-    .login__form { display: flex; flex-direction: column; gap: 0.75rem; }
-    .login__input { border: 1px solid var(--border-input); border-radius: 0.5rem; padding: 0.65rem 0.75rem; font-size: 0.95rem; }
-    .btn { border-radius: 0.5rem; border: 1px solid transparent; padding: 0.65rem 0.75rem; cursor: pointer; font-weight: 600; }
-    .btn--primary { background: var(--primary); color: #fff; }
-    .btn--ghost { background: var(--bg); color: var(--text-secondary); border-color: var(--border-input); margin-top: 0.75rem; }
-    .btn--full { width: 100%; }
-    .login__divider { margin: 1rem 0; color: var(--text-faint); font-size: 0.8rem; }
+    .login__title { font-size: 1.25rem; font-weight: 700; color: var(--text); margin: 0 0 1.5rem; }
     .login__google-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 0.75rem 1.25rem; border: 1px solid var(--border-input); border-radius: 0.5rem; background: var(--bg); cursor: pointer; font-size: 0.95rem; font-weight: 500; color: var(--text-secondary); }
     .login__google-icon { width: 20px; height: 20px; flex-shrink: 0; }
-    .login__error { color: #dc2626; margin-top: 0.75rem; font-size: 0.85rem; }
   `]
 })
 export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected email = '';
-  protected password = '';
-  protected firstName = '';
-  protected lastName = '';
-  protected phoneNumber = '';
-  protected readonly error = signal('');
-
   protected signInWithGoogle(): void {
     this.auth.loginWithGoogle();
-  }
-
-  protected async signInWithPassword(): Promise<void> {
-    this.error.set('');
-    try {
-      await this.auth.loginWithEmailPassword(this.email, this.password);
-      await this.router.navigate(['/']);
-    } catch {
-      this.error.set('Invalid email or password.');
-    }
-  }
-
-  protected async register(): Promise<void> {
-    this.error.set('');
-    if (!this.firstName.trim() || !this.lastName.trim() || !this.phoneNumber.trim()) {
-      this.error.set('First name, last name, and phone number are required for registration.');
-      return;
-    }
-
-    try {
-      await this.auth.registerWithEmailPassword(
-        this.email,
-        this.password,
-        this.firstName,
-        this.lastName,
-        this.phoneNumber
-      );
-      await this.router.navigate(['/']);
-    } catch {
-      this.error.set('Unable to register. Email may already be in use.');
-    }
   }
 }

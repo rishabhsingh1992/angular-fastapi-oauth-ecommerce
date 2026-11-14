@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../../api/api.service';
-import { ApiError, Order } from '../../api/api.types';
+import { ApiError, OrderResponse } from '../../api/api.types';
 
 @Component({
   selector: 'app-orders',
@@ -13,7 +13,8 @@ import { ApiError, Order } from '../../api/api.types';
 })
 export class OrdersComponent {
   protected readonly orderId = signal('');
-  protected readonly order = signal<Order | null>(null);
+  protected readonly order = signal<OrderResponse | null>(null);
+  protected readonly orders = signal<OrderResponse[]>([]);
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
 
@@ -25,6 +26,26 @@ export class OrdersComponent {
     hour: 'numeric',
     minute: '2-digit',
   });
+
+  constructor() {
+    this.loadOrders();
+  }
+
+  protected loadOrders(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.api.listOrders().subscribe({
+      next: (orders) => {
+        this.orders.set(orders);
+        this.loading.set(false);
+      },
+      error: (apiError: ApiError) => {
+        this.loading.set(false);
+        this.error.set(apiError.message || 'Could not fetch orders.');
+      },
+    });
+  }
 
   protected trackOrder(): void {
     const id = this.orderId().trim();

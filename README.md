@@ -71,7 +71,8 @@ pip install -r requirements.txt
 cp .env.example .env
 
 # Start development server
-fastapi dev main.py
+# Note: MongoDB must be running
+uvicorn app.main:app --reload --port 8000
 ```
 
 The API runs at `http://localhost:8000`. Interactive docs at `/docs`.
