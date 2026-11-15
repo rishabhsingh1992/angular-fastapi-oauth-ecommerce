@@ -31,6 +31,10 @@ class Settings(BaseSettings):
         alias="GOOGLE_REDIRECT_URI",
     )
 
+    # GitHub OAuth
+    github_client_id: str = Field(default="", alias="OAUTH_GITHUB_CLIENT_ID")
+    github_client_secret: str = Field(default="", alias="OAUTH_GITHUB_CLIENT_SECRET")
+
     # MongoDB
     mongodb_uri: str = Field(default="mongodb://localhost:27017", alias="MONGODB_URI")
     mongodb_db_name: str = Field(default="ecommerce", alias="MONGODB_DB_NAME")

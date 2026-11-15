@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
 from app.db.mongo import close_db, connect_db
-from app.routes import auth, cart, orders, products, users
+from app.routes import auth, cart, github_auth, orders, products, users
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +53,7 @@ def create_app() -> FastAPI:
         }
 
     api_router.include_router(auth.router)
+    api_router.include_router(github_auth.router)
     api_router.include_router(users.router)
     api_router.include_router(products.router)
     api_router.include_router(cart.router)

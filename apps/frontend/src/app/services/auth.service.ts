@@ -32,6 +32,34 @@ export class AuthService {
     window.location.href = `${environment.apiBaseUrl}/auth/google?redirect_uri=${redirectUri}`;
   }
 
+  loginWithGithub(): void {
+    const redirectUri = encodeURIComponent(`${window.location.origin}/auth/callback`);
+    window.location.href = `${environment.apiBaseUrl}/auth/github?redirect_uri=${redirectUri}`;
+  }
+
+  async loginWithEmailPassword(email: string, password: string): Promise<void> {
+    const response = await firstValueFrom(this.http.post<AuthTokenResponse>(`${environment.apiBaseUrl}/auth/login`, { email, password }));
+    this.applyAuthResponse(response);
+  }
+
+  async registerWithEmailPassword(
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    phoneNumber: string
+  ): Promise<void> {
+    const response = await firstValueFrom(this.http.post<AuthTokenResponse>(`${environment.apiBaseUrl}/auth/register`, {
+      email,
+      password,
+      full_name: `${firstName} ${lastName}`.trim(),
+      first_name: firstName,
+      last_name: lastName,
+      phone_number: phoneNumber
+    }));
+    this.applyAuthResponse(response);
+  }
+
   async handleOAuthCallback(params: URLSearchParams): Promise<void> {
     const token = params.get('token');
 
